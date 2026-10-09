@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Ведомости - Новости</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+        label, select, input, button { font-size: 16px; margin: 6px 0; }
+        input, select { padding: 6px; width: 100%; box-sizing: border-box; }
+        button { padding: 8px 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Чтение новостей Ведомостей</h1>
+
+    <label>Категория:</label>
+    <select id="category">
+        <option value="">- загрузка категорий... -</option>
+    </select>
+
+    <label>Количество новостей:</label>
+    <input id="count" type="number" min="1" value="10">
+
+    <button id="go">Показать</button>
+
+    <script>
+        // Динамически формируем список при загрузке страницы
+        fetch('/categories')
+            .then(r => r.json())
+            .then(categories => {
+                const select = document.getElementById('category');
+                select.innerHTML = '';
+                categories.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.slug;
+                    opt.textContent = c.title;
+                    select.appendChild(opt);
+                });
+            })
+            .catch(err => {
+                document.getElementById('category').innerHTML =
+                    '<option>Ошибка загрузки категорий</option>';
+                console.error(err);
+            });
+
+        // При выборе отправляем запрос на сервер
+        document.getElementById('go').addEventListener('click', () => {
+            const count = document.getElementById('count').value;
+            const category = document.getElementById('category').value;
+            if (!category) return alert('Выберите категорию');
+            if (!count || count <= 0) return alert('Введите положительное число');
+            window.location.href = `/${count}/news/for/${category}`;
+        });
+    </script>
+</body>
+</html>
